@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head>
+    <meta charset="utf-8">
+<title>C++的函数调用约定(calling convention) - Hexo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+<meta name="description" content="">
+
+
+
+
+
+    <meta name="description" content="&amp;#x6211;&amp;#x4EEC;&amp;#x5728;C++&amp;#x4E2D;&amp;#x8C03;&amp;#x7528;&amp;#x51FD;&amp;#x6570;&amp;#x65F6;&amp;#xFF0C;&amp;#x53EF;&amp;#x80FD;&amp;#x5F88;&amp;#x5C11;&amp;#x5173;&amp;#x6CE8;&amp;#x53C2;&amp;#x6570;&amp;#x662F;&amp;#x5982;&amp;#x4F55;&amp;#x5165;&amp;#x6808;&amp;#xFF0C;&amp;#x57">
+<meta property="og:type" content="website">
+<meta property="og:title" content="C++的函数调用约定(calling convention)">
+<meta property="og:url" content="https://das1012.github.io/C-%E7%9A%84%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A-calling-convention/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="&amp;#x6211;&amp;#x4EEC;&amp;#x5728;C++&amp;#x4E2D;&amp;#x8C03;&amp;#x7528;&amp;#x51FD;&amp;#x6570;&amp;#x65F6;&amp;#xFF0C;&amp;#x53EF;&amp;#x80FD;&amp;#x5F88;&amp;#x5C11;&amp;#x5173;&amp;#x6CE8;&amp;#x53C2;&amp;#x6570;&amp;#x662F;&amp;#x5982;&amp;#x4F55;&amp;#x5165;&amp;#x6808;&amp;#xFF0C;&amp;#x57">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-30T18:08:34.000Z">
+<meta property="article:modified_time" content="2020-04-30T20:15:37.553Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                <img src="/images/logo.png" alt="" height="28">
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item "
+               href="/archives">Archives</a>
+            
+            <a class="navbar-item "
+               href="/categories/LifeStyle">Lifestyle</a>
+            
+            <a class="navbar-item "
+               href="/categories/Music">Music</a>
+            
+            <a class="navbar-item "
+               href="/categories/Technology">Technology</a>
+            
+            <a class="navbar-item "
+               href="/about">关于我</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" title="搜索" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" title="GitHub" href="https://github.com/das1012/das1012.github.io" target="_blank" rel="noopener">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            C++的函数调用约定(calling convention)
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2020-04-30T18:08:34.000Z" itemprop="datePublished">5月 1 2020</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            16 分钟 读完 (约 2372 字)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <html><head></head><body><p>&#x6211;&#x4EEC;&#x5728;C++&#x4E2D;&#x8C03;&#x7528;&#x51FD;&#x6570;&#x65F6;&#xFF0C;&#x53EF;&#x80FD;&#x5F88;&#x5C11;&#x5173;&#x6CE8;&#x53C2;&#x6570;&#x662F;&#x5982;&#x4F55;&#x5165;&#x6808;&#xFF0C;&#x5728;&#x8C03;&#x7528;&#x5B8C;&#x6BD5;&#x4E4B;&#x540E;&#x53C8;&#x662F;&#x5982;&#x4F55;&#x6062;&#x590D;&#x6808;&#x7684;&#x72B6;&#x6001;&#x7684;&#x3002;&#x5B9E;&#x9645;&#x4E0A;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;</p>
+<p>&#x5BF9;&#x4E8E;VC++&#x7F16;&#x8BD1;&#x5668;&#x6765;&#x8BF4;&#xFF0C;&#x652F;&#x6301;&#x4E0B;&#x5217;&#x7684;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#xFF1A;</p>
+<table>
+<thead>
+<tr>
+<th>&#x5173;&#x952E;&#x5B57;</th>
+<th>&#x5806;&#x6808;&#x6E05;&#x7406;</th>
+<th>&#x53C2;&#x6570;&#x4F20;&#x9012;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>__cdecl</td>
+<td>&#x8C03;&#x7528;&#x65B9;</td>
+<td>&#x5728;&#x5806;&#x6808;&#x4E0A;&#x6309;&#x76F8;&#x53CD;&#x987A;&#x5E8F;&#x63A8;&#x9001;&#x53C2;&#x6570;&#xFF08;&#x4ECE;&#x53F3;&#x5230;&#x5DE6;&#xFF09;</td>
+</tr>
+<tr>
+<td>__clrcall</td>
+<td>&#x4E0D;&#x9002;&#x7528;</td>
+<td>&#x6309;&#x987A;&#x5E8F;&#x5C06;&#x53C2;&#x6570;&#x52A0;&#x8F7D;&#x5230; CLR &#x8868;&#x8FBE;&#x5F0F;&#x5806;&#x6808;&#x4E0A;&#xFF08;&#x4ECE;&#x5DE6;&#x5230;&#x53F3;&#xFF09;</td>
+</tr>
+<tr>
+<td>__stdcall</td>
+<td>&#x88AB;&#x8C03;&#x7528;&#x65B9;</td>
+<td>&#x5728;&#x5806;&#x6808;&#x4E0A;&#x6309;&#x76F8;&#x53CD;&#x987A;&#x5E8F;&#x63A8;&#x9001;&#x53C2;&#x6570;&#xFF08;&#x4ECE;&#x53F3;&#x5230;&#x5DE6;&#xFF09;</td>
+</tr>
+<tr>
+<td>__fastcall</td>
+<td>&#x88AB;&#x8C03;&#x7528;&#x65B9;</td>
+<td>&#x5B58;&#x50A8;&#x5728;&#x5BC4;&#x5B58;&#x5668;&#x4E2D;&#xFF0C;&#x7136;&#x540E;&#x5728;&#x5806;&#x6808;&#x4E0A;&#x63A8;&#x9001;</td>
+</tr>
+<tr>
+<td>__thiscall</td>
+<td>&#x88AB;&#x8C03;&#x7528;&#x65B9;</td>
+<td>&#x5DF2;&#x63A8;&#x9001;&#x5230;&#x5806;&#x6808;&#x4E0A;;<strong>&#x6B64;</strong>&#x6307;&#x9488;&#x5B58;&#x50A8;&#x5728; ECX &#x4E2D;</td>
+</tr>
+<tr>
+<td>_vectorcall</td>
+<td>&#x88AB;&#x8C03;&#x7528;&#x65B9;</td>
+<td>&#x5B58;&#x50A8;&#x5728;&#x5BC4;&#x5B58;&#x5668;&#x4E2D;&#xFF0C;&#x7136;&#x540E;&#x6309;&#x76F8;&#x53CD;&#x987A;&#x5E8F;&#x5728;&#x5806;&#x6808;&#x4E0A;&#x63A8;&#x9001;&#xFF08;&#x4ECE;&#x53F3;&#x5230;&#x5DE6;&#xFF09;</td>
+</tr>
+</tbody></table>
+<p>&#x4E0B;&#x9762;&#x5206;&#x522B;&#x7B80;&#x5355;&#x4ECB;&#x7ECD;&#x4E00;&#x4E0B;&#x4E0A;&#x8FF0;&#x516D;&#x4E2A;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#xFF1A;</p>
+<h2 id="cdecl"><a href="#cdecl" class="headerlink" title="__cdecl"></a>__cdecl</h2><p><strong>__cdecl</strong>&#x662F; C &#x548C;C++&#x7A0B;&#x5E8F;&#x7684;&#x9ED8;&#x8BA4;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002; &#x5806;&#x6808;&#x7531;&#x8C03;&#x7528;&#x65B9;&#x6E05;&#x7406;&#xFF0C;&#x6240;&#x4EE5;&#x53C2;&#x6570;&#x5C31;&#x53EF;&#x4EE5;&#x662F;vararg&#x3002;__cdecl&#x540D;&#x79F0;&#x7EA6;&#x5B9A;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p><code>int func( int a, double b )</code> &#x7684;&#x51FD;&#x6570;&#x6309;&#x5982;&#x4E0B;&#x6240;&#x793A;&#x8FDB;&#x884C;&#x4FEE;&#x9970;&#xFF1A;_func</p>
+<p>&#x5728; ARM &#x548C; x64 &#x5904;&#x7406;&#x5668;&#x4E0A; <strong>&#xFF0C;__cdecl</strong>&#x88AB;&#x7F16;&#x8BD1;&#x5668;&#x63A5;&#x53D7;&#xFF0C;&#x4F46;&#x901A;&#x5E38;&#x88AB;&#x5FFD;&#x7565;&#x6389;&#x3002; &#x6309;&#x7167; ARM &#x548C; x64 &#x4E0A;&#x7684;&#x7EA6;&#x5B9A;&#xFF0C;&#x81EA;&#x53D8;&#x91CF;&#x5C06;&#x5C3D;&#x53EF;&#x80FD;&#x4F20;&#x5165;&#x5BC4;&#x5B58;&#x5668;&#xFF0C;&#x540E;&#x7EED;&#x81EA;&#x53D8;&#x91CF;&#x4F20;&#x9012;&#x5230;&#x5806;&#x6808;&#x4E2D;&#xFF08;&#x6BD5;&#x7ADF;&#x5BC4;&#x5B58;&#x5668;&#x5C31;&#x90A3;&#x4E48;&#x51E0;&#x4E2A;&#xFF0C;&#x5BF9;&#x4E8E;&#x53C2;&#x6570;&#x975E;&#x5E38;&#x591A;&#x7684;&#x51FD;&#x6570;&#xFF0C;&#x4E0D;&#x5F97;&#x4E0D;&#x628A;&#x4E00;&#x90E8;&#x5206;&#x53C2;&#x6570;&#x538B;&#x5230;&#x6808;&#x4E2D;&#xFF09;&#x3002; &#x5728; x64 &#x4EE3;&#x7801;&#x4E2D;&#xFF0C;&#x4F7F;&#x7528; <strong>__cdecl</strong>&#x6765;&#x91CD;&#x5199; <strong>/Gv</strong>&#x7F16;&#x8BD1;&#x5668;&#x9009;&#x9879;&#x5E76;&#x4F7F;&#x7528;&#x9ED8;&#x8BA4; x64 &#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002;</p>
+<p></p><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">//&#x5B9A;&#x4E49;&#x5982;&#x4E0B;&#x7ED3;&#x6784;</span></span><br><span class="line"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">CMyClass</span> {</span></span><br><span class="line">   <span class="hljs-function"><span class="hljs-keyword">void</span> __cdecl <span class="hljs-title">mymethod</span><span class="hljs-params">()</span></span>;</span><br><span class="line">};</span><br><span class="line"><span class="hljs-comment">//functionA</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">CMyClass::mymethod</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span>; }</span><br><span class="line"><span class="hljs-comment">//functionB</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">void</span> __cdecl <span class="hljs-title">CMyClass::mymethod</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span>; }</span><br><span class="line"><span class="hljs-comment">//functionB &#x548C;functionA&#x662F;&#x7B49;&#x4EF7;&#x7684;</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="clrcall"><a href="#clrcall" class="headerlink" title="__clrcall"></a>__clrcall</h2><p>__clrcall&#x662F;&#x5FAE;&#x8F6F;&#x5BF9;C++&#x505A;&#x7684;&#x6269;&#x5C55;&#xFF0C;&#x901A;&#x8FC7;&#x5B83;&#x53EF;&#x4EE5;&#x8BA9;C++&#x8C03;&#x7528;C#&#x7684;&#x51FD;&#x6570;&#x3002;&#x901A;&#x8FC7;&#x542F;&#x7528;&#x7F16;&#x8BD1;&#x5668;&#x53C2;&#x6570;(/clr)&#xFF0C;&#x53EF;&#x4EE5;&#x5C06;&#x6240;&#x6709;&#x7684;&#x51FD;&#x6570;&#x548C;&#x51FD;&#x6570;&#x6307;&#x9488;&#x6807;&#x8BB0;&#x3002;</p>
+<p></p><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// clrcall2.cpp</span></span><br><span class="line"><span class="hljs-comment">// compile with: /clr</span></span><br><span class="line"><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> System;</span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">int</span> __clrcall <span class="hljs-title">Func1</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">   <span class="hljs-built_in">Console</span>::WriteLine(<span class="hljs-string">&quot;in Func1&quot;</span>);</span><br><span class="line">   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// Func1 hasn&apos;t been used at this point (code has not been generated),</span></span><br><span class="line"><span class="hljs-comment">// so runtime returns the adddress of a stub to the function</span></span><br><span class="line"><span class="hljs-keyword">int</span> (__clrcall *pf)() = &amp;Func1;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// code calls the function, code generated at difference address</span></span><br><span class="line"><span class="hljs-keyword">int</span> i = pf();   <span class="hljs-comment">// comment this line and comparison will pass</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">   <span class="hljs-keyword">if</span> (&amp;Func1 == pf)</span><br><span class="line">      <span class="hljs-built_in">Console</span>::WriteLine(<span class="hljs-string">&quot;&amp;Func1 == pf, comparison succeeds&quot;</span>);</span><br><span class="line">   <span class="hljs-keyword">else</span></span><br><span class="line">      <span class="hljs-built_in">Console</span>::WriteLine(<span class="hljs-string">&quot;&amp;Func1 != pf, comparison fails&quot;</span>);</span><br><span class="line"></span><br><span class="line">   <span class="hljs-comment">// even though comparison fails, stub and function call are correct</span></span><br><span class="line">   pf();</span><br><span class="line">   Func1();</span><br><span class="line">}</span><br><span class="line"><span class="hljs-comment">//&#x8F93;&#x51FA;</span></span><br><span class="line"><span class="hljs-comment">//in Func1</span></span><br><span class="line"><span class="hljs-comment">//&amp;Func1 != pf, comparison fails</span></span><br><span class="line"><span class="hljs-comment">//in Func1</span></span><br><span class="line"><span class="hljs-comment">//in Func1</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="stdcall"><a href="#stdcall" class="headerlink" title="__stdcall"></a>__stdcall</h2><p>__stdcall&#x4E00;&#x822C;&#x7528;&#x4E8E;WINAPI&#x4E2D;&#x3002;stdcall&#x662F;&#x4E0D;&#x652F;&#x6301;&#x53EF;&#x53D8;&#x53C2;&#x6570;&#x7684;&#x3002;&#x5B83;&#x7684;&#x540D;&#x79F0;&#x7EA6;&#x5B9A;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p>&#x4E0B;&#x5212;&#x7EBF; (<em>) &#x662F;&#x540D;&#x79F0;&#x7684;&#x524D;&#x7F00;&#x3002;</em> &#x540D;&#x79F0;&#x540E;&#x8DDF;&#x540E;&#x9762;&#x662F;&#x81EA;&#x53D8;&#x91CF;&#x5217;&#x8868;&#x4E2D;&#x7684;&#x5B57;&#x8282;&#x6570;&#xFF08;&#x91C7;&#x7528;&#x5341;&#x8FDB;&#x5236;&#xFF09;&#x7684;&#x7B26;&#x53F7; (@)&#x3002; &#x56E0;&#x6B64;&#xFF0C;&#x58F0;&#x660E;&#x4E3A; <code>int func( int a, double b )</code> &#x7684;&#x51FD;&#x6570;&#x6309;&#x5982;&#x4E0B;&#x6240;&#x793A;&#x8FDB;&#x884C;&#x4FEE;&#x9970;&#xFF1A;_func@12  (int + double&#x7684;&#x5B57;&#x8282;&#x6570;)</p>
+<h2 id="fastcall"><a href="#fastcall" class="headerlink" title="__fastcall"></a>__fastcall</h2><p>__fastcall&#x4EC5;&#x9002;&#x7528;&#x4E8E;x86&#x67B6;&#x6784;&#x3002;&#x9762;&#x5411; ARM &#x548C; x64 &#x4F53;&#x7CFB;&#x7ED3;&#x6784;&#x7684;&#x7F16;&#x8BD1;&#x5668;&#x63A5;&#x53D7;&#x5E76;&#x5FFD;&#x7565;&#x8BE5;&#x5173;&#x952E;&#x5B57;;&#x5728; x64 &#x82AF;&#x7247;&#x4E0A;&#xFF0C;&#x6309;&#x7167;&#x7EA6;&#x5B9A;&#xFF0C;&#x524D;&#x56DB;&#x4E2A;&#x53C2;&#x6570;&#x5728;&#x5BC4;&#x5B58;&#x5668;&#x4E2D;&#x4F20;&#x9012;&#xFF08;&#x5982;&#x679C;&#x53EF;&#x80FD;&#xFF09;&#xFF0C;&#x800C;&#x5176;&#x4ED6;&#x53C2;&#x6570;&#x5728;&#x5806;&#x6808;&#x4E0A;&#x4F20;&#x9012;&#x3002; &#x5728; ARM &#x82AF;&#x7247;&#x4E0A;&#xFF0C;&#x5BC4;&#x5B58;&#x5668;&#x4E2D;&#x53EF;&#x4EE5;&#x4F20;&#x9012;&#x6700;&#x591A;&#x56DB;&#x4E2A;&#x6574;&#x6570;&#x53C2;&#x6570;&#x548C;&#x516B;&#x4E2A;&#x6D6E;&#x70B9;&#x53C2;&#x6570;&#xFF0C;&#x800C;&#x5176;&#x4ED6;&#x53C2;&#x6570;&#x5728;&#x5806;&#x6808;&#x4E0A;&#x4F20;&#x9012;&#x3002;&#x5B83;&#x7684;&#x540D;&#x79F0;&#x7EA6;&#x5B9A;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p> &#x58F0;&#x660E;&#x4E3A; <code>int func( int a, double b )</code> &#x7684;&#x51FD;&#x6570;&#x6309;&#x5982;&#x4E0B;&#x6240;&#x793A;&#x8FDB;&#x884C;&#x4FEE;&#x9970;&#xFF1A;@func@12  (int + double&#x7684;&#x5B57;&#x8282;&#x6570;)</p>
+<h2 id="thiscall"><a href="#thiscall" class="headerlink" title="__thiscall"></a>__thiscall</h2><p>__thiscall&#x5728; ARM &#x548C; x64 &#x8BA1;&#x7B97;&#x673A;&#x4E0A;&#xFF0C;&#x7F16;&#x8BD1;&#x5668;&#x63A5;&#x53D7;&#x5E76;&#x5FFD;&#x7565;&#x5B83;&#x3002;&#x5B83;&#x7531;&#x88AB;&#x8C03;&#x7528;&#x65B9;&#x6E05;&#x7406;&#x5806;&#x6808;&#xFF0C;&#x81EA;&#x7136;&#x4E0D;&#x652F;&#x6301;&#x53EF;&#x53D8;&#x53C2;&#x6570;&#x3002;&#x56E0;&#x4E3A;C++&#x7684;&#x7C7B;&#x6210;&#x5458;&#x51FD;&#x6570;&#x548C;&#x5176;&#x4ED6;&#x7684;&#x51FD;&#x6570;&#x4E0D;&#x540C;&#x7684;&#x4E00;&#x70B9;&#x5728;&#x4E8E;&#x6210;&#x5458;&#x90FD;&#x6709;&#x4E00;&#x4E2A;this&#x6307;&#x9488;&#xFF0C;&#x4E3A;&#x4E86;&#x5904;&#x7406;&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#xFF0C;&#x4F1A;&#x7528;&#x5230;thiscall&#x3002;</p>
+<h2 id="vectorcall"><a href="#vectorcall" class="headerlink" title="__vectorcall"></a>__vectorcall</h2><p>__vectorcall&#x9ED8;&#x8BA4;&#x4E5F;&#x662F;&#x5C3D;&#x53EF;&#x80FD;&#x591A;&#x5730;&#x4F7F;&#x7528;&#x5BC4;&#x5B58;&#x5668;&#x3002;&#x76F8;&#x6BD4;&#x4E8E;fastcall&#x6216;x64&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#xFF0C;&#x5B83;&#x4F1A;&#x4F7F;&#x7528;&#x66F4;&#x591A;&#x7684;&#x5BC4;&#x5B58;&#x5668;&#x3002;&#x4F46;&#x662F;&#x4EC5;&#x5728;&#x5305;&#x542B;&#x6D41;&#x5F0F;&#x5904;&#x7406; SIMD &#x6269;&#x5C55;2&#xFF08;SSE2&#xFF09;&#x548C;&#x66F4;&#x9AD8;&#x7248;&#x672C;&#x7684; x86 &#x548C; x64 &#x5904;&#x7406;&#x5668;&#x4E0A;&#x7684;&#x672C;&#x673A;&#x4EE3;&#x7801;&#x4E2D;&#x652F;&#x6301; vectorcall&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002; &#x4F7F;&#x7528; vectorcall**&#x52A0;&#x5FEB;&#x4F20;&#x9012;&#x591A;&#x4E2A;&#x6D6E;&#x70B9;&#x6216; SIMD &#x5411;&#x91CF;&#x53C2;&#x6570;&#x7684;&#x51FD;&#x6570;&#xFF0C;&#x5E76;&#x6267;&#x884C;&#x5229;&#x7528;&#x5BC4;&#x5B58;&#x5668;&#x4E2D;&#x52A0;&#x8F7D;&#x7684;&#x53C2;&#x6570;&#x7684;&#x64CD;&#x4F5C;&#x3002; </p>
+<p>__vectorcall&#x5BF9;&#x4E8E;&#x53C2;&#x6570;&#x7C7B;&#x578B;&#x6709;&#x4E25;&#x683C;&#x7684;&#x8981;&#x6C42;&#xFF0C;&#x5177;&#x4F53;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p>&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x5728; <strong>__vectorcall</strong>&#x51FD;&#x6570;&#x4E2D;&#x6CE8;&#x518C;&#x6765;&#x4F20;&#x9012;&#x4E09;&#x79CD;&#x53C2;&#x6570;&#xFF1A;<em>&#x6574;&#x6570;&#x7C7B;&#x578B;</em>&#x503C;&#x3001;<em>&#x77E2;&#x91CF;&#x7C7B;&#x578B;</em>&#x503C;&#x548C;<em>&#x540C;&#x7C7B;&#x77E2;&#x91CF;&#x805A;&#x5408;</em>&#xFF08;HVA&#xFF09;&#x503C;&#x3002;</p>
+<p>&#x6574;&#x6570;&#x7C7B;&#x578B;&#x6EE1;&#x8DB3;&#x4E24;&#x4E2A;&#x8981;&#x6C42;&#xFF1A;&#x5B83;&#x9002;&#x5408;&#x5904;&#x7406;&#x5668;&#x7684;&#x672C;&#x673A;&#x5BC4;&#x5B58;&#x5668;&#x5927;&#x5C0F;&#xFF08;&#x4F8B;&#x5982;&#xFF0C;x86 &#x8BA1;&#x7B97;&#x673A;&#x4E0A;&#x7684; 4 &#x4E2A;&#x5B57;&#x8282;&#x6216; x64 &#x8BA1;&#x7B97;&#x673A;&#x4E0A;&#x7684; 8 &#x4E2A;&#x5B57;&#x8282;&#xFF09;&#xFF0C;&#x800C;&#x4E14;&#x5B83;&#x53EF;&#x4EE5;&#x8F6C;&#x6362;&#x6210;&#x4E0E;&#x5BC4;&#x5B58;&#x5668;&#x957F;&#x5EA6;&#x4E00;&#x6837;&#x7684;&#x6574;&#x6570;&#xFF0C;&#x5E76;&#x4E14;&#x4E0D;&#x7528;&#x66F4;&#x6539;&#x5176;&#x4F4D;&#x8868;&#x793A;&#x5F62;&#x5F0F;&#x5C31;&#x80FD;&#x8F6C;&#x6362;&#x56DE;&#x6765;&#x3002; &#x4F8B;&#x5982;&#xFF0C;&#x53EF;&#x4EE5;&#x5728; x86 &#x4E0A;&#x63D0;&#x5347;&#x4E3A;<strong>int</strong>&#x7684;&#x4EFB;&#x4F55;<strong>&#x7C7B;&#x578B;&#xFF08;&#x4F8B;&#x5982;</strong>&#xFF0C;&#x5728; x64 &#x4E0A;&#x957F;&#x957F;&#x7684;&#x65F6;&#x95F4;&#xFF09;&#xFF08;&#x4F8B;&#x5982;&#xFF0C; <strong>char</strong>&#x6216;<strong>short</strong>&#xFF09;&#x6216;&#x53EF;&#x4EE5;&#x5F3A;&#x5236;&#x8F6C;&#x6362;&#x4E3A;<strong>int</strong>&#x7684;&#x7C7B;&#x578B;&#xFF08;&#x5728; x64 &#x4E0A;<strong>&#x957F;</strong>&#x957F;&#xFF09;&#xFF0C;&#x5E76;&#x8FD4;&#x56DE;&#x5230;&#x4E0D;&#x5E26;&#x66F4;&#x6539;&#x7684;&#x539F;&#x59CB;&#x7C7B;&#x578B;&#x662F;&#x6574;&#x6570;&#x7C7B;&#x578B;&#x3002; &#x6574;&#x6570;&#x7C7B;&#x578B;&#x5305;&#x62EC;&#x6307;&#x9488;&#x3001;&#x5F15;&#x7528;&#x548C;<strong>&#x7ED3;&#x6784;</strong>&#x6216;4&#x4E2A;&#x5B57;&#x8282;&#x7684;<strong>&#x8054;&#x5408;</strong>&#x7C7B;&#x578B;&#xFF08;x64 &#x4E0A;&#x7684;8&#x4E2A;&#x5B57;&#x8282;&#xFF09;&#x6216;&#x66F4;&#x5C11;&#x3002; &#x5728; x64 &#x5E73;&#x53F0;&#x4E0A;&#xFF0C;&#x66F4;&#x5927;&#x7684;<strong>&#x7ED3;&#x6784;</strong>&#x548C;<strong>&#x8054;&#x5408;</strong>&#x7C7B;&#x578B;&#x901A;&#x8FC7;&#x5F15;&#x7528;&#x4F20;&#x9012;&#x7ED9;&#x8C03;&#x7528;&#x65B9;&#x5206;&#x914D;&#x7684;&#x5185;&#x5B58;;&#x5728; x86 &#x5E73;&#x53F0;&#x4E0A;&#xFF0C;&#x5B83;&#x4EEC;&#x901A;&#x8FC7;&#x5806;&#x6808;&#x4E0A;&#x7684;&#x503C;&#x8FDB;&#x884C;&#x4F20;&#x9012;&#x3002;</p>
+<p>&#x77E2;&#x91CF;&#x7C7B;&#x578B;&#x4E3A;&#x6D6E;&#x70B9;&#x7C7B;&#x578B;&#xFF08;&#x4F8B;&#x5982;&#xFF0C; <strong>float</strong>&#x6216;<strong>DOUBLE</strong>&#xFF09;&#x6216; SIMD &#x77E2;&#x91CF;&#x7C7B;&#x578B;&#xFF0C;&#x4F8B;&#x5982; <strong>__m128</strong>&#x6216; <strong>__m256</strong>&#x3002;</p>
+<p>HVA &#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5305;&#x542B;&#x56DB;&#x4E2A;&#x5177;&#x6709;&#x76F8;&#x540C;&#x77E2;&#x91CF;&#x7C7B;&#x578B;&#x7684;&#x6570;&#x636E;&#x6210;&#x5458;&#x3002; HVA &#x7C7B;&#x578B;&#x5177;&#x6709;&#x548C;&#x5176;&#x6210;&#x5458;&#x7684;&#x77E2;&#x91CF;&#x7C7B;&#x578B;&#x76F8;&#x540C;&#x7684;&#x5BF9;&#x9F50;&#x9700;&#x6C42;&#x3002; &#x4E0B;&#x9762;&#x4E00;&#x4E2A;&#x5305;&#x542B;&#x4E09;&#x4E2A;&#x76F8;&#x540C;&#x5411;&#x91CF;&#x7C7B;&#x578B;&#x5E76;&#x4E14;&#x5177;&#x6709;32&#x5B57;&#x8282;&#x5BF9;&#x9F50;&#x65B9;&#x5F0F;&#x7684; HVA<strong>&#x7ED3;&#x6784;</strong>&#x5B9A;&#x4E49;&#x7684;&#x793A;&#x4F8B;&#xFF1A;</p>
+<p></p><figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef struct {</span><br><span class="line">   __m256 x;</span><br><span class="line">   __m256 y;</span><br><span class="line">   __m256 z;</span><br><span class="line">} hva3;    // 3 element HVA type on __m256</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>__vectorcall&#x5BF9;&#x4E8E;&#x52A0;&#x901F;&#x8FD0;&#x7B97;&#x901F;&#x5EA6;&#xFF08;&#x5C24;&#x5176;&#x662F;&#x56FE;&#x5F62;&#x5B66;&#x4E2D;&#x6D89;&#x53CA;&#x5230;&#x5927;&#x91CF;4&#x7EF4;&#x77E9;&#x9635;&#x548C;&#x5411;&#x91CF;&#x7684;&#x8BA1;&#x7B97;&#xFF0C;&#x80FD;&#x5927;&#x5E45;&#x5EA6;&#x63D0;&#x5347;&#x8FD0;&#x7B97;&#x901F;&#x5EA6;&#x3002;&#x5B83;&#x7684;&#x540D;&#x79F0;&#x7EA6;&#x5B9A;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p>&#x58F0;&#x660E;&#x4E3A; int func( int a, double b ) &#x7684;&#x51FD;&#x6570;&#x6309;&#x5982;&#x4E0B;&#x6240;&#x793A;&#x8FDB;&#x884C;&#x4FEE;&#x9970;&#xFF1A;_func@@12  (int + double&#x7684;&#x5B57;&#x8282;&#x6570;)</p>
+<p>&#x5176;&#x5B9E;&#x4EE5;&#x4E0A;&#x8C03;&#x7528;&#x89C4;&#x5B9A;&#x5728;&#x5F88;&#x591A;&#x60C5;&#x51B5;&#x4E0B;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x4FEE;&#x6539;&#x7F16;&#x8BD1;&#x5668;&#x53C2;&#x6570;&#x8FDB;&#x884C;&#x8BBE;&#x7F6E;&#x3002;&#x4E0B;&#x9762;&#x4ECE;msdn&#x4E0A;&#x590D;&#x5236;&#x4E00;&#x6BB5;&#x63CF;&#x8FF0;&#xFF1A;</p>
+<h2 id="&#x5907;&#x6CE8;"><a href="#&#x5907;&#x6CE8;" class="headerlink" title="&#x5907;&#x6CE8;"></a>&#x5907;&#x6CE8;</h2><p>&#x9ED8;&#x8BA4;&#x8BBE;&#x7F6E;&#x201C;/Gd&#x201D;&#x4E3A;&#x9664; C++ &#x6210;&#x5458;&#x51FD;&#x6570;&#x548C;&#x6807;&#x8BB0;&#x4E3A; <a href="https://docs.microsoft.com/zh-cn/cpp/cpp/stdcall?view=vs-2019" target="_blank" rel="noopener">__stdcall</a>&#x3001;<a href="https://docs.microsoft.com/zh-cn/cpp/cpp/fastcall?view=vs-2019" target="_blank" rel="noopener">__fastcall</a> &#x6216; <a href="https://docs.microsoft.com/zh-cn/cpp/cpp/vectorcall?view=vs-2019" target="_blank" rel="noopener">__vectorcall</a> &#x7684;&#x51FD;&#x6570;&#x4E4B;&#x5916;&#x7684;&#x6240;&#x6709;&#x51FD;&#x6570;&#x6307;&#x5B9A; <a href="https://docs.microsoft.com/zh-cn/cpp/cpp/cdecl?view=vs-2019" target="_blank" rel="noopener">__cdecl</a> &#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002;</p>
+<p>&#x201C;/Gr&#x201D;&#x4E3A;&#x9664; C++ &#x6210;&#x5458;&#x51FD;&#x6570;&#x3001;&#x540D;&#x4E3A; <code>main</code> &#x7684;&#x51FD;&#x6570;&#x4EE5;&#x53CA;&#x6807;&#x8BB0;&#x4E3A; <code>__cdecl</code>&#x3001;<code>__stdcall</code> &#x6216; <code>__vectorcall</code> &#x7684;&#x51FD;&#x6570;&#x4E4B;&#x5916;&#x7684;&#x6240;&#x6709;&#x51FD;&#x6570;&#x6307;&#x5B9A; <code>__fastcall</code> &#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002; &#x6240;&#x6709; <code>__fastcall</code> &#x51FD;&#x6570;&#x90FD;&#x5FC5;&#x987B;&#x6709;&#x539F;&#x578B;&#x3002; &#x6B64;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x4EC5;&#x5728;&#x9762;&#x5411; x86 &#x7684;&#x7F16;&#x8BD1;&#x5668;&#x4E2D;&#x53EF;&#x7528;&#xFF0C;&#x5728;&#x9762;&#x5411;&#x5176;&#x4ED6;&#x4F53;&#x7CFB;&#x7ED3;&#x6784;&#x7684;&#x7F16;&#x8BD1;&#x5668;&#x4E2D;&#x88AB;&#x5FFD;&#x7565;&#x3002;</p>
+<p>&#x201C;/Gz&#x201D;&#x4E3A;&#x9664; C++ &#x6210;&#x5458;&#x51FD;&#x6570;&#x3001;&#x540D;&#x4E3A; <code>main</code> &#x7684;&#x51FD;&#x6570;&#x4EE5;&#x53CA;&#x6807;&#x8BB0;&#x4E3A; <code>__cdecl</code>&#x3001;<code>__fastcall</code> &#x6216; <code>__vectorcall</code> &#x7684;&#x51FD;&#x6570;&#x4E4B;&#x5916;&#x7684;&#x6240;&#x6709;&#x51FD;&#x6570;&#x6307;&#x5B9A; <code>__stdcall</code> &#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002; &#x6240;&#x6709; <code>__stdcall</code> &#x51FD;&#x6570;&#x90FD;&#x5FC5;&#x987B;&#x6709;&#x539F;&#x578B;&#x3002; &#x6B64;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x4EC5;&#x5728;&#x9762;&#x5411; x86 &#x7684;&#x7F16;&#x8BD1;&#x5668;&#x4E2D;&#x53EF;&#x7528;&#xFF0C;&#x5728;&#x9762;&#x5411;&#x5176;&#x4ED6;&#x4F53;&#x7CFB;&#x7ED3;&#x6784;&#x7684;&#x7F16;&#x8BD1;&#x5668;&#x4E2D;&#x88AB;&#x5FFD;&#x7565;&#x3002;</p>
+<p>/Gv&#x4E3A;&#x9664;&#x6210;&#x5458;&#x51FD;&#x6570;&#x3001;&#x540D;&#x4E3A; main&#x7684;C++&#x51FD;&#x6570;&#x3001;&#x5177;&#x6709; vararg &#x53D8;&#x91CF;&#x53C2;&#x6570;&#x5217;&#x8868;&#x7684;&#x51FD;&#x6570;&#x6216;&#x6807;&#x8BB0;&#x4E3A;&#x51B2;&#x7A81;&#x7684; cdecl&#x3001;stdcall&#x6216; fastcall &#x7279;&#x6027;&#x7684;&#x51FD;&#x6570;&#x4E4B;&#x5916;&#x7684;&#x6240;&#x6709;&#x51FD;&#x6570;&#x6307;&#x5B9A; vectorcall &#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002; &#x6B64;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x4EC5;&#x5728;&#x652F;&#x6301; /arch:SSE2 &#x53CA;&#x66F4;&#x9AD8;&#x7248;&#x672C;&#x7684; x86 &#x548C; x64 &#x4F53;&#x7CFB;&#x7ED3;&#x6784;&#x4E0A;&#x53EF;&#x7528;&#xFF0C;&#x5E76;&#x4E14;&#x88AB;&#x9762;&#x5411; ARM &#x67B6;&#x6784;&#x7684;&#x7F16;&#x8BD1;&#x5668;&#x5FFD;&#x7565;&#x3002;</p>
+<p>&#x91C7;&#x7528;&#x53EF;&#x53D8;&#x6570;&#x91CF;&#x53C2;&#x6570;&#x7684;&#x51FD;&#x6570;&#x5FC5;&#x987B;&#x6807;&#x8BB0;&#x4E3A; <code>__cdecl</code>&#x3002;</p>
+<p>/Gd&#x3001;/Gr&#x3001;/Gv &#x548C; /Gz &#x4E0E; <a href="https://docs.microsoft.com/zh-cn/cpp/build/reference/clr-common-language-runtime-compilation?view=vs-2019" target="_blank" rel="noopener">/clr:safe</a> &#x6216; <strong>/clr:pure</strong> &#x4E0D;&#x517C;&#x5BB9;&#x3002; &#x201C;/clr:pure&#x201D;&#x548C;&#x201C;/clr:safe&#x201D;&#x7F16;&#x8BD1;&#x5668;&#x9009;&#x9879;&#x5728; Visual Studio 2015 &#x4E2D;&#x5DF2;&#x5F03;&#x7528;&#xFF0C;&#x5E76;&#x4E14;&#x5728; Visual Studio 2017 &#x548C;&#x66F4;&#x9AD8;&#x7248;&#x672C;&#x4E2D;&#x4E0D;&#x53D7;&#x652F;&#x6301;&#x3002;</p>
+<p>&#x5BF9;&#x4E8E;&#x975E;&#x9759;&#x6001;&#x7C7B;&#x51FD;&#x6570;&#xFF0C;&#x5982;&#x679C;&#x51FD;&#x6570;&#x662F;&#x8D85;&#x884C;&#x5B9A;&#x4E49;&#x7684;&#xFF0C;&#x5219;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x4FEE;&#x9970;&#x7B26;&#x4E0D;&#x5FC5;&#x5728;&#x8D85;&#x884C;&#x5B9A;&#x4E49;&#x4E2D;&#x6307;&#x5B9A;&#x3002; &#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#xFF0C;&#x5BF9;&#x4E8E;&#x7C7B;&#x975E;&#x9759;&#x6001;&#x6210;&#x5458;&#x65B9;&#x6CD5;&#xFF0C;&#x5728;&#x5B9A;&#x4E49;&#x65F6;&#x5047;&#x5B9A;&#x58F0;&#x660E;&#x671F;&#x95F4;&#x6307;&#x5B9A;&#x7684;&#x8C03;&#x7528;&#x7EA6;&#x5B9A;&#x3002;</p>
+<p>&#x8865;&#x5145;&#xFF1A;&#x4F8B;&#x5982;&#x5728;vulkan1.2&#x7248;&#x672C;&#x7684;&lt;vk_platform.h&gt;&#x5934;&#x6587;&#x4EF6;&#x4E2D;&#x6709;&#x5982;&#x4E0B;&#x4EE3;&#x7801;&#xFF1A;</p>
+<p></p><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">/* Platform-specific calling convention macros.</span></span><br><span class="line"><span class="hljs-comment"> *</span></span><br><span class="line"><span class="hljs-comment"> * Platforms should define these so that Vulkan clients call Vulkan commands</span></span><br><span class="line"><span class="hljs-comment"> * with the same calling conventions that the Vulkan implementation expects.</span></span><br><span class="line"><span class="hljs-comment"> *</span></span><br><span class="line"><span class="hljs-comment"> * VKAPI_ATTR - Placed before the return type in function declarations.</span></span><br><span class="line"><span class="hljs-comment"> *              Useful for C++11 and GCC/Clang-style function attribute syntax.</span></span><br><span class="line"><span class="hljs-comment"> * VKAPI_CALL - Placed after the return type in function declarations.</span></span><br><span class="line"><span class="hljs-comment"> *              Useful for MSVC-style calling convention syntax.</span></span><br><span class="line"><span class="hljs-comment"> * VKAPI_PTR  - Placed between the &apos;(&apos; and &apos;*&apos; in function pointer types.</span></span><br><span class="line"><span class="hljs-comment"> *</span></span><br><span class="line"><span class="hljs-comment"> * Function declaration:  VKAPI_ATTR void VKAPI_CALL vkCommand(void);</span></span><br><span class="line"><span class="hljs-comment"> * Function pointer type: typedef void (VKAPI_PTR *PFN_vkCommand)(void);</span></span><br><span class="line"><span class="hljs-comment"> */</span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-meta-keyword">if</span> defined(_WIN32)</span></span><br><span class="line">    <span class="hljs-comment">// On Windows, Vulkan commands use the stdcall convention</span></span><br><span class="line">    <span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> VKAPI_ATTR</span></span><br><span class="line">    <span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> VKAPI_CALL __stdcall</span></span><br><span class="line">    <span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> VKAPI_PTR  VKAPI_CALL</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;vulkan&#x9488;&#x5BF9;&#x4E8E;windows&#x5E73;&#x53F0;&#xFF0C;&#x5B9A;&#x4E49;&#x4E86;VKAPI_CALL&#x5B8F;&#xFF0C;&#x5B9E;&#x9645;&#x4E0A;&#x5B83;&#x5C31;&#x662F;__stdcall</p>
+<p>&#x76F8;&#x5173;&#x94FE;&#x63A5;&#xFF1A;<a href="https://docs.microsoft.com/zh-cn/cpp/cpp/argument-passing-and-naming-conventions?view=vs-2019" target="_blank" rel="noopener">https://docs.microsoft.com/zh-cn/cpp/cpp/argument-passing-and-naming-conventions?view=vs-2019</a></p>
+</body></html>
+    
+    </div>
+    
+    
+</article>
+
+
+<div class="sharebox">
+    
+<div class="sharethis-inline-share-buttons"></div>
+<script type='text/javascript' src='das1012.github.io' async='async'></script>
+
+</div>
+
+
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2020 John Doe&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" title="GitHub" href="https://github.com/das1012/das1012.github.io" target="_blank" rel="noopener">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" target="_blank" rel="noopener">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+    moment.locale("zh-CN");
+</script>
+
+
+    
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        "HTML-CSS": {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+</script>
+
+    
+    
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <style>
+        .hljs {
+            position: relative;
+        }
+
+        .hljs .clipboard-btn {
+            float: right;
+            color: #9a9a9a;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .hljs .clipboard-btn:hover {
+          color: #8a8a8a;
+        }
+
+        .hljs > .clipboard-btn {
+            display: none;
+            position: absolute;
+            right: 4px;
+            top: 4px;
+        }
+
+        .hljs:hover > .clipboard-btn {
+            display: inline;
+        }
+
+        .hljs > figcaption > .clipboard-btn {
+            margin-right: 4px;
+        }
+    </style>
+    <script>
+      $(document).ready(function () {
+        $('figure.hljs').each(function(i, figure) {
+          var codeId = 'code-' + i;
+          var code = figure.querySelector('.code');
+          var copyButton = $('<button>Copy <i class="far fa-clipboard"></i></button>');
+          code.id = codeId;
+          copyButton.addClass('clipboard-btn');
+          copyButton.attr('data-clipboard-target-id', codeId);
+
+          var figcaption = figure.querySelector('figcaption');
+
+          if (figcaption) {
+            figcaption.append(copyButton[0]);
+          } else {
+            figure.prepend(copyButton[0]);
+          }
+        })
+
+        var clipboard = new ClipboardJS('.clipboard-btn', {
+          target: function(trigger) {
+            return document.getElementById(trigger.getAttribute('data-clipboard-target-id'));
+          }
+        });
+        clipboard.on('success', function(e) {
+          e.clearSelection();
+        })
+      })
+    </script>
+
+    
+    
+
+    
+
+
+
+<script src="/js/script.js"></script>
+
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="站内搜索" />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+    
+</body>
+</html>
