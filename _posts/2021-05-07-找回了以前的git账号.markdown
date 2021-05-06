@@ -1,0 +1,7 @@
+---
+layout: post
+title:  "找回了git账号"
+date:   2021-05-07 03:37:19 +0800
+categories: 生活
+---
+找回了之前的git账号，以后就维护这个blog了。

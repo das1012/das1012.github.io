@@ -1,0 +1,18 @@
+title: "星光"
+#description: "Midnight is a theme for GitHub Pages."
+#author: "星光"
+#show_downloads: true
+#google_analytics:
+theme: jekyll-theme-midnight
+url: "https://das1012.github.io/"
+links:
+  - title: "Home"
+    url: /
+  - title: "About"
+    url: /about
+  - title: "简书"
+    url: 
+  - title: "github"
+    url: https://github.com/das1012
+  - title: "订阅"
+    url: https://github.com/das1012 
