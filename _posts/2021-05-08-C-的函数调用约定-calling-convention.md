@@ -1,7 +1,10 @@
 ---
 title: C++的函数调用约定(calling convention)
-date: 2021-05-08 02:08:34
-types: "C++"
+date: 2021-05-08 02:08:34 +0800
+tags: [C++]
+categories: [C++]
+math: true
+mermaid: true
 ---
 
 我们在C++中调用函数时，可能很少关注参数是如何入栈，在调用完毕之后又是如何恢复栈的状态的。实际上我们可以通过
