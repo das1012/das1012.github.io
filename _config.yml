@@ -5,7 +5,7 @@ theme: jekyll-theme-chirpy
 
 # Only if your site type is GitHub Project sites and doesn't have a custom domain,
 # change below value to '/projectname'.
-baseurl: 'https://das1012.github.io/'
+baseurl: '/das1012.github.io'
 
 # the HTML language tag › https://www.w3.org/International/questions/qa-choosing-language-tags
 lang: zh-CN
@@ -35,7 +35,7 @@ social:
   email: liumingrui94@163.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    - https://github.com/das1012 # change to your github homepage
+    - https://github.com/das1012/ # change to your github homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     # - https://www.linkedin.com/in/username
